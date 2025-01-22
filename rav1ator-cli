@@ -159,19 +159,19 @@ exit 1
 				echo -e "${GREY}Bad binary integrity detected:${RESET} rav1e"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
-			elif [ "$x265_sum" != "e857e5c8b803de4849e0d75535ef5441008d6360327b7ff67d0e9295195a11e0" ]; then
+			elif [ "$x265_sum" != "dd00527ea7b152a41bf1eb9cb89f8d8c4754afbdbe889fcce6fc9e24fab28c24" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} x265"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
-			elif [ "$x264_sum" != "47a872f6485b5b925627c038946646db7a5b105d71c5a34869009b3a38da38d1" ]; then
+			elif [ "$x264_sum" != "3d4f9ddfd08370e76663756a3bb5ac4f78d47b7ce0da8498e3a87b2e26f7fc58" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} x264"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
-			elif [ "$svt_sum" != "52e7546cb000cdb93897d3aa7ed89381e7eac83bce8ca3684f43fb24db153064" ]; then
+			elif [ "$svt_sum" != "5e041a60d6c512831830f66469edb2d85cb09bf3538ffa096aefd94ae756ce32" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} SvtAv1EncApp"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
-			elif [ "$aom_sum" != "a8955f68ef94f05d263aa1be781225d61b68784a6de35a324bd7437d7aa84160" ]; then
+			elif [ "$aom_sum" != "f3540fc7b24b8d0e8186081e1b9fbeb6dd0ba00a4ce09322ac47eaa52f7b496e" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} aomenc"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1

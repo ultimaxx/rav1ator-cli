@@ -31,7 +31,7 @@ legal_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/leg
 # Every time there's a significant user-facing update, this will change & is checked against rav1ator-cli.md5 (which is pulled from the git repo). to generate rav1ator-cli.md5, just `rm rav1ator-cli.md5 && md5sum rav1ator-cli | awk '{print $1}' >> rav1ator-cli.md5`.
 script_md5=$(md5sum /usr/local/bin/rav1ator-cli | awk '{print $1}')
 version="0.3.1"
-bin_latest_date="21 Janurary 2025"
+bin_latest_date="21 January 2025"
 
 # Check where the script is located
 bin_loc=$(which rav1ator-cli)

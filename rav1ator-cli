@@ -720,6 +720,7 @@ while [[ $done -eq 0 ]] ; do
 			;;
                 "vpxenc") 
                         encoder_av1an="vpx"
+                        ;;
 	esac
     	echo -e "${GREY}>${RESET} ${AV1RED}$encoder${RESET}\n"
 

@@ -319,7 +319,7 @@ cpu_used_select () {
 			str=$(gum input --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "Speed (Speed, lower = slower)")
 			;;
                 "vpxenc")
-                        str=$(gum inpur --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "CPU Used (Speed, lower = slower)")
+                        str=$(gum input --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "CPU Used (Speed, lower = slower)")
                         ;;
 	esac
 	echo "$str"

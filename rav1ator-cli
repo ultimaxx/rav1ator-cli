@@ -25,7 +25,7 @@ x265_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/x265
 x264_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/x264.zst"
 svt_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/SvtAv1EncApp.zst"
 aom_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/aomenc.zst"
-vpx_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/vpx/bin/vpxenc.zst"
+vpx_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/vp9/bin/vpxenc.zst"
 legal_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/legal.tar.zst"
 
 
@@ -42,7 +42,7 @@ is_batch_encode=0
 
 # Check for updates by checking the script's hash against the latest hash in the git repo. Requires an internet connection.
 update_hash_check () {
-	str=$(curl -s https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/rav1ator-cli.md5)
+	str=$(curl -s https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/vp9/rav1ator-cli.md5)
 	echo "$str"
 }
 
@@ -110,7 +110,7 @@ elif [[ "$*" == "-b" || "$*" == "--binaries" ]]; then
         echo -e "\nThere is a ${BOLD}New Update${RESET} available!"
         echo -e "${GREY}We've downloaded it for you. Would you like to install to /usr/local/bin?${RESET}"
         # Download latest script from GitHub if we need to update
-    	curl -sOJ https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/rav1ator-cli
+    	curl -sOJ https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/vp9/rav1ator-cli
     	chmod +x rav1ator-cli
     	# echo -e "sudo cp rav1ator-cli /usr/local/bin" # Installation instruction
     	confirmation=$(update_prompt)

@@ -271,7 +271,7 @@ fi
 # Encoder Selection
 encoder_select () {
 	# Single threaded
-	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" x264 x265 aomenc SVT-AV1 rav1e)
+	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" x264 x265 aomenc SVT-AV1 rav1e vpxenc)
 	echo "$str"
 }
 

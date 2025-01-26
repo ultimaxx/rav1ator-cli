@@ -25,6 +25,7 @@ x265_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/x265
 x264_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/x264.zst"
 svt_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/SvtAv1EncApp.zst"
 aom_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/aomenc.zst"
+vpx_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/vpx/bin/vpxenc.zst"
 legal_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/legal.tar.zst"
 
 
@@ -144,6 +145,7 @@ exit 1
 			cd ~/rav1ator_cli_encoders || return; gum spin --spinner.foreground="161" --spinner line --title "Downloading encoder rav1e..." -- curl -OJ "$rav1e_link"
 			cd ~/rav1ator_cli_encoders || return; gum spin --spinner.foreground="161" --spinner line --title "Downloading encoder x264..." -- curl -OJ "$x264_link"
 			cd ~/rav1ator_cli_encoders || return; gum spin --spinner.foreground="161" --spinner line --title "Downloading encoder x265..." -- curl -OJ "$x265_link"
+                        cd ~/rav1ator_cli_encoders || return; gum spin --spinner.foreground="161" --spinner line --title "Downloading encoder vpxenc..." -- curl -OJ "$vpx_link"
 			gum spin --spinner.foreground="161" --spinner line --title "Decompressing binary archives..." -- zstd -d ~/rav1ator_cli_encoders/*.zst && rm ~/rav1ator_cli_encoders/*.zst
 
 			# Check the SHA256 hash of each binary to make sure they are correct
@@ -152,6 +154,7 @@ exit 1
 			x264_sum=$(sha256sum ~/rav1ator_cli_encoders/x264 | awk '{print $1}' | tr -dc "abcdefg1234567890")
 			svt_sum=$(sha256sum ~/rav1ator_cli_encoders/SvtAv1EncApp | awk '{print $1}' | tr -dc "abcdefg1234567890")
 			aom_sum=$(sha256sum ~/rav1ator_cli_encoders/aomenc | awk '{print $1}' | tr -dc "abcdefg1234567890")
+                        vpx_sum=$(sha256sum ~/rav1ator_cli_encoders/vpxenc | awk '{print $1}' | tr -dc "abcdefg1234567890")
 			legal_sum=$(sha256sum ~/rav1ator_cli_encoders/legal.tar | awk '{print $1}' | tr -dc "abcdefg1234567890")
 
 			# If the hash is wrong, exit the tool & inform the user
@@ -173,6 +176,10 @@ exit 1
 				exit 1
 			elif [ "$aom_sum" != "f3540fc7b24b8d0e8186081e1b9fbeb6dd0ba00a4ce09322ac47eaa52f7b496e" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} aomenc"
+				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
+				exit 1
+                        elif [ "$vpx_sum" != "567eb2387bdffff3683000a66fa5dc5846f83be80cbc1a159e613701910489d6" ]; then
+				echo -e "${GREY}Bad binary integrity detected:${RESET} vpxenc"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
 			elif [ "$legal_sum" != "2bcbb1e170dccf0236292d8fd132d3880e70c90756984b7d1024220d125bd42c" ]; then
@@ -286,6 +293,9 @@ cpu_used_select_text () {
 		"rav1e")
 			str="Speed trades time for encoding efficiency, with lower being slower. \nType a number from 0 to 10. We recommend ${ULINE}2${RESET} through ${ULINE}8${RESET}."
 			;;
+                "vpxenc") 
+                        str="CPU Used trades time for encoding efficiency, with lower being slower \nType a number from 0 to 5. We recommend ${ULINE}3%{RESET} and below. /n--rt can range from 0 to 15 but is not recommended"
+                        ;;
 	esac
 	echo "$str"
 }
@@ -308,6 +318,9 @@ cpu_used_select () {
 		"rav1e")
 			str=$(gum input --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "Speed (Speed, lower = slower)")
 			;;
+                "vpxenc")
+                        str=$(gum inpur --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "CPU Used (Speed, lower = slower)")
+                        ;;
 	esac
 	echo "$str"
 }
@@ -325,11 +338,14 @@ crf_used_select_text () {
 			str="CQ trades file size for quality; lower numbers produce larger, higher-quality files. \nType a number from 0 to 63. We'd recommend ${ULINE}24${RESET} to start."
 			;;
 		"SVT-AV1")
-			str="CRF trades file size for quality; lower numbers produce larger, higher-quality files. \nType a number from 0 to 63. We'd recommend ${ULINE}29${RESET} to start."
+			str="CRF trades file size for quality; lower numbers produce larger, higher-quality files. \nType a number from 0 to 70. We'd recommend ${ULINE}29${RESET} to start."
 			;;
 		"rav1e")
 			str="Quantizer trades file size for quality; lower numbers produce larger, higher-quality files. \nType a number from 0 to 255. We'd recommend ${ULINE}80${RESET} to start. \nGoing above Quantizer 100 for live-action content is generally not recommended."
 			;;
+                "vpxenc")
+                        str="CQ trades file size for quality; lower numbers produce larger, higher-quality files \nType a number from 0 to 63. We'd recommend ${ULINE}25${RESET} to start."
+                        ;;
 	esac
 	echo "$str"
 }
@@ -352,6 +368,9 @@ crf_used_select () {
 		"rav1e")
 			str=$(gum input --cursor.foreground="161" --prompt.foreground="248" --width 6 --placeholder "Quantizer")
 			;;
+                "vpxenc")
+                        str=$"(gum input --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "CQ")
+                        ;;
 	esac
 	echo "$str"
 }
@@ -392,6 +411,9 @@ param_select () {
 				"rav1e")
 					str="--tiles 8 --threads 2 --no-scene-detection --keyint 0 -s "$speed" --quantizer "$crf" --photon-noise "$grain""
 					;;
+                                "vpxenc")
+                                        str="--codec=vp9 --passes=2 --ivf --good --threads=2 --profile=2 --lag-in-frames=25 --end-usage=q --cq-level="$crf" --disable-kf --kf-max-dist=9999 --cpu-used="$speed" --auto-alt-ref=6 --arnr-maxframes=7 --arnr-strength=4 --aq-mode=0 --frame-boost=1 --tune-content=default --row-mt=1 --bit-depth=10 --tile-columns=1 --tile-rows=0 --enable-tpl=1"
+                                        ;;
 			esac
 			;;
 		"HDR10")
@@ -696,6 +718,8 @@ while [[ $done -eq 0 ]] ; do
 			grain_scale="1-64"
 			encoder_av1an="rav1e"
 			;;
+                "vpxenc") 
+                        encoder_av1an="vpx"
 	esac
     	echo -e "${GREY}>${RESET} ${AV1RED}$encoder${RESET}\n"
 
@@ -712,7 +736,7 @@ while [[ $done -eq 0 ]] ; do
     	echo -e "${GREY}>${RESET} ${AV1RED}$crf${RESET}\n"
 
 		# Unless we're encoding AV1, don't ask about grain
-		if [[ "$encoder" != "x264" && "$encoder" != "x265" ]]; then
+		if [[ "$encoder" != "x264" && "$encoder" != "x265" && "$encoder" != "vpxenc"]]; then
 			grain_string=$(grain_text)
 			echo -e "$grain_string"
 			grain_confirm=$(grain_confirmation)

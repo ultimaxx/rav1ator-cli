@@ -1,7 +1,5 @@
 # rAV1ator CLI
 
-(just a lazy fork, don't think this will go anywhere)
-
 An easy-to-use CLI utility for working with Av1an, written in Bash.
 
 rAV1ator CLI is a command-line utility for encoding videos using the Av1an encoding toolkit. It provides an easy-to-use interface for configuring various encoding settings, selecting encoders, and managing the encoding process. The utility is written in Bash and leverages the power of Av1an for efficient AV1 encoding.

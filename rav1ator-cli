@@ -369,7 +369,7 @@ crf_used_select () {
 			str=$(gum input --cursor.foreground="161" --prompt.foreground="248" --width 6 --placeholder "Quantizer")
 			;;
                 "vpxenc")
-                        str=$"(gum input --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "CQ")
+                        str=$(gum input --cursor.foreground="161" --prompt.foreground="248" --width 4 --placeholder "CQ")
                         ;;
 	esac
 	echo "$str"

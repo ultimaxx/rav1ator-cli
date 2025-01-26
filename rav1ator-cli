@@ -575,7 +575,7 @@ chunkmethod_text () {
 # Chunk Method Selection
 chunkmethod_select () {
 	# Single threaded
-	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Lsmash Bestsource)
+	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Lsmash Bestsource FFMS2)
 	echo "$str"
 }
 
@@ -592,6 +592,8 @@ chunkmethod_opt () {
         "Bestsource")
             selected_method="bestsource"
             ;;
+		"FFMS2")
+		    selected_method="ffms2"
     esac
 
     echo "$selected_method"

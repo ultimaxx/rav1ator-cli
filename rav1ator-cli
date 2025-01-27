@@ -294,7 +294,7 @@ cpu_used_select_text () {
 			str="Speed trades time for encoding efficiency, with lower being slower. \nType a number from 0 to 10. We recommend ${ULINE}2${RESET} through ${ULINE}8${RESET}."
 			;;
                 "vpxenc") 
-                        str="CPU Used trades time for encoding efficiency, with lower being slower \nType a number from 0 to 5. We recommend ${ULINE}3${RESET} and below. /n--rt can range from 0 to 15 but is not recommended"
+                        str="CPU Used trades time for encoding efficiency, with lower being slower \nType a number from 0 to 5. We recommend ${ULINE}3${RESET} and below."
                         ;;
 	esac
 	echo "$str"

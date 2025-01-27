@@ -388,7 +388,7 @@ param_select () {
 	elif [[ "$encoder" == "rav1e" ]]; then
 		yn=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Default HDR10 Custom)
 	elif [[ "$encoder" == "vpxenc" ]]; then
-	    yn=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Default Animation Custom)
+	        yn=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Default Animation Custom)
 	else
 		yn=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Default Custom)
 	fi

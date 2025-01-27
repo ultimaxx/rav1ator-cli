@@ -412,7 +412,7 @@ param_select () {
 					str="--tiles 8 --threads 2 --no-scene-detection --keyint 0 -s "$speed" --quantizer "$crf" --photon-noise "$grain""
 					;;
                                 "vpxenc")
-                                        str="--codec=vp9 --passes=2 --ivf --good --threads=2 --profile=2 --lag-in-frames=25 --end-usage=q --cq-level="$crf" --disable-kf --kf-max-dist=9999 --cpu-used="$speed" --auto-alt-ref=6 --arnr-maxframes=7 --arnr-strength=4 --aq-mode=0 --frame-boost=1 --tune-content=default --row-mt=1 --bit-depth=10 --tile-columns=1 --tile-rows=0 --enable-tpl=1"
+                                        str="--codec=vp9 --passes=2 --webm --good --threads=2 --profile=2 --lag-in-frames=25 --end-usage=q --cq-level="$crf" --disable-kf --kf-max-dist=9999 --cpu-used="$speed" --auto-alt-ref=6 --arnr-maxframes=7 --arnr-strength=4 --aq-mode=2 --frame-boost=1 --tune-content=film --row-mt=1 --bit-depth=10 --tile-columns=1 --tile-rows=0 --enable-tpl=1"
                                         ;;
 			esac
 			;;

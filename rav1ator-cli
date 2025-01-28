@@ -575,7 +575,7 @@ chunkmethod_text () {
 # Chunk Method Selection
 chunkmethod_select () {
 	# Single threaded
-	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" Lsmash Bestsource FFMS2)
+	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" FFMS2 Lsmash Bestsource)
 	echo "$str"
 }
 
@@ -586,14 +586,15 @@ chunkmethod_opt () {
     method=$(chunkmethod_select)
 
     case $method in
-        "Lsmash")
+        "FFMS2")
+		    selected_method="ffms2"
+			;;
+		"Lsmash")
             selected_method="lsmash"
             ;;
         "Bestsource")
             selected_method="bestsource"
             ;;
-		"FFMS2")
-		    selected_method="ffms2"
     esac
 
     echo "$selected_method"
@@ -761,7 +762,11 @@ while [[ $done -eq 0 ]] ; do
         # Asking for Av1an chunk method
         chunk_text=$(chunkmethod_text)
         echo -e "$chunk_text"
+		if [ -z "$chunkmethod_opt" ]; then
+		   chunk_string="ffms2"
+		else
         chunk_string=$(chunkmethod_opt)
+		fi 
         echo -e "${GREY}>${RESET} ${AV1RED}$chunk_string${RESET}\n"
 
 		# Finally, asking if the user is ready to encoder
@@ -778,7 +783,7 @@ while [[ $done -eq 0 ]] ; do
     			RAND=$(gum spin md5sum $INFILE --spinner.foreground="161" --spinner line --show-output --title "Hashing input file..." | head -c 6)
 
 				# Echo the generated script and goodbye message to a .sh file
-    			echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
+    			echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
 				echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
 
 				# Handle history output to `.rav1ator-cli-history` text file
@@ -809,13 +814,13 @@ while [[ $done -eq 0 ]] ; do
 
 				# Echo the generated batch encoding script & goodbye message to a .sh file
 				echo -e "ulimit -n 200000" > "rAV1ator-CLI_job${RAND}.sh"
-    			echo -e "find "$batch_dir" \( -name "\*.mkv" -o -name "\*.y4m" -o -name "\*.mp4" -o -name "\*.flv" -o -name "\*.webm" -o -name "\*.ivf" -o -name "\*.flv" -o -name "\*.yuv" \) -execdir av1an -i {} --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o rAV1ator-CLI_job${RAND}/{}-encoded.mkv \;" >> "rAV1ator-CLI_job${RAND}.sh"
+    			echo -e "find "$batch_dir" \( -name "\*.mkv" -o -name "\*.y4m" -o -name "\*.mp4" -o -name "\*.flv" -o -name "\*.webm" -o -name "\*.ivf" -o -name "\*.flv" -o -name "\*.yuv" \) -execdir av1an -i {} --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o rAV1ator-CLI_job${RAND}/{}-encoded.mkv \;" >> "rAV1ator-CLI_job${RAND}.sh"
 				echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
 
 				# Handle history output to `.rav1ator-cli-history` text file
 				echo "-------" >> ~/.rav1ator-cli-history
 				date >> ~/.rav1ator-cli-history
-				echo -e "av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o genericOutput.mkv" >> ~/.rav1ator-cli-history
+				echo -e "av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o genericOutput.mkv" >> ~/.rav1ator-cli-history
 
 				# Mark script as executable
 				chmod +x "rAV1ator-CLI_job${RAND}.sh"
@@ -841,13 +846,13 @@ while [[ $done -eq 0 ]] ; do
     			RAND=$(gum spin md5sum $INFILE --spinner.foreground="161" --spinner line --show-output --title "Hashing input file..." | head -c 6)
 
 				# The only difference between "Yes" and "Resume" is that this one has a resume flag. I don't think this should be the default
-    			echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --resume --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
+    			echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --resume --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
     			echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
 
 				# Handle history output to `.rav1ator-cli-history` text file
 				echo "-------" >> ~/.rav1ator-cli-history
 				date >> ~/.rav1ator-cli-history
-				echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --resume --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" >> ~/.rav1ator-cli-history
+				echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --resume --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" >> ~/.rav1ator-cli-history
 
 				# Mark script as executable
 				chmod +x "rAV1ator-CLI_job${RAND}.sh"
@@ -866,12 +871,12 @@ while [[ $done -eq 0 ]] ; do
 				gum spin sleep 1.2 --spinner.foreground="161" --spinner line --show-output --title "Generating script..."
 
 				# Print the Av1an command to the terminal
-				echo -e "${GREY}Generated script${RESET}${AV1RED}:${RESET} av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\""
+				echo -e "${GREY}Generated script${RESET}${AV1RED}:${RESET} av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\""
 
 				# Handle history output to `.rav1ator-cli-history` text file
 				echo "-------" >> ~/.rav1ator-cli-history
 				date >> ~/.rav1ator-cli-history
-				echo -e "av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" >> ~/.rav1ator-cli-history
+				echo -e "av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" >> ~/.rav1ator-cli-history
 
 				# Inform the user that the printed output is also in their history
 				echo -e "${GREY}Printed script added to history.${RESET}"
@@ -881,12 +886,12 @@ while [[ $done -eq 0 ]] ; do
 				gum spin sleep 1.5 --spinner.foreground="161" --spinner line --show-output --title "Generating generic script..."
 
 				# Print the non-batch Av1an command to the terminal
-    			echo -e "${GREY}Generated script${RESET}${AV1RED}:${RESET} av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"genericOutput.mkv\""
+    			echo -e "${GREY}Generated script${RESET}${AV1RED}:${RESET} av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"genericOutput.mkv\""
 
 				# Handle history output to `.rav1ator-cli-history` text file
 				echo "-------" >> ~/.rav1ator-cli-history
 				date >> ~/.rav1ator-cli-history
-				echo -e "av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m bestsource -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"genericOutput.mkv\"" >> ~/.rav1ator-cli-history
+				echo -e "av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"genericOutput.mkv\"" >> ~/.rav1ator-cli-history
 
 				# Inform the user that the printed output is also in their history
 				echo -e "${GREY}Printed script added to history. Please note this is a generic single-file script based on your specified settings that will not work on a folder/directory of videos.${RESET}"

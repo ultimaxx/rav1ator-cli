@@ -762,12 +762,11 @@ while [[ $done -eq 0 ]] ; do
         # Asking for Av1an chunk method
         chunk_text=$(chunkmethod_text)
         echo -e "$chunk_text"
-		if [ -z "$chunkmethod_opt" ]; then
-		   chunk_string="ffms2"
-		else
-        chunk_string=$(chunkmethod_opt)
-		fi 
+        chunk_string=$(chunkmethod_opt) 
         echo -e "${GREY}>${RESET} ${AV1RED}$chunk_string${RESET}\n"
+		if [ -z $chunk_string ]; then
+		chunk_string=ffms2
+		fi
 
 		# Finally, asking if the user is ready to encoder
     	echo -e "${BOLD}Ready to encode?${RESET}"

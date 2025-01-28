@@ -767,7 +767,6 @@ while [[ $done -eq 0 ]] ; do
 		if [ -z "$chunk_string" ]; then
           chunk_string="ffms2"
         fi
-        echo -e "${GREY}>${RESET} ${AV1RED}$chunk_string${RESET}\n"
 
 		# Finally, asking if the user is ready to encoder
     	echo -e "${BOLD}Ready to encode?${RESET}"

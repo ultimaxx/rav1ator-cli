@@ -70,7 +70,7 @@ if [[ "$*" == "-h" || "$*" == "--help" ]]; then
 	echo -e "	rav1ator-cli [${AV1RED}input${RESET}] [${AV1RED}output${RESET}] [${GREY}--offline${RESET}]"
 	echo -e ""
 	echo -e "${GREY}Dependencies (Arch)${RESET}: "
-	echo -e "	openssl ffmpeg python mkvtoolnix-cli vapoursynth gum numactl l-smash vapoursynth-plugin-lsmashsource av1an ffms2"
+	echo -e "	openssl ffmpeg python mkvtoolnix-cli vapoursynth gum numactl av1an ffms2"
 	echo -e ""
 	echo -e "${GREY}Options${RESET}: (Currently, only one option is useful at a time)"
 	echo -e "	-h, --help		Print this help section"
@@ -568,14 +568,14 @@ worker_select () {
 }
 
 chunkmethod_text () {
-    str="The chunk method defines how Av1an splits up your video into smaller chunks for encoding. \nLsmash is the fastest, but can be less reliable. Bestsource is slower but more reliable. \nIf you're unsure, Bestsource is recommended."
+    str="The chunk method defines how Av1an splits up your video into smaller chunks for encoding. \nFFMS2 is faster and very reliable but can have issues with some sources. \nBestsource is slower but the most reliable. \nIf you're unsure, FFMS2 is recommended."
     echo "$str"
 }
 
 # Chunk Method Selection
 chunkmethod_select () {
 	# Single threaded
-	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" FFMS2 Lsmash Bestsource)
+	str=$(gum choose --limit=1 --cursor.foreground="161" --item.foreground="248" FFMS2 Bestsource)
 	echo "$str"
 }
 
@@ -587,11 +587,8 @@ chunkmethod_opt () {
 
     case $method in
         "FFMS2")
-		    selected_method="ffms2"
+	    selected_method="ffms2"
 			;;
-		"Lsmash")
-            selected_method="lsmash"
-            ;;
         "Bestsource")
             selected_method="bestsource"
             ;;

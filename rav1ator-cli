@@ -384,10 +384,10 @@ param_select () {
 					str="--output-depth 10 --profile main10 -p "$speed" --crf "$crf""
 					;;
 				"aomenc")
-					str="--good --bit-depth=10 --end-usage=q --threads=2 --tune=ssim --ssim-rd-mult=125 --tune-content=psy --arnr-maxframes=15 --arnr-strength=2 --enable-cdef=0 --loopfilter-control=3 --quant-sharpness=3 --deltaq-mode=1 --aq-mode=0 --enable-keyframe-filtering=1 --luma-bias=25 --luma-bias-strength=15 --luma-bias-midpoint=66 --enable-qm=1 --quant-b-adapt=1 --lag-in-frames=48 --sb-size=dynamic --disable-kf --kf-max-dist=9999 --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0"
+					str="--good --bit-depth=10 --end-usage=q --threads=2 --dist-metric=qm-psnr --tune-content=psy101 --arnr-strength=2 --sharpness=2 --auto-tiling=4 --enable-keyframe-filtering=1 --lag-in-frames=48 --disable-kf --kf-max-dist=9999 --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0"
 					;;
 				"SVT-AV1")
-					str="--tune 3 --sharpness 2 --keyint -1 --lp 2 --irefresh-type 2 --crf "$crf" --preset "$speed" --film-grain "$grain""
+					str="--tune 3 --keyint -1 --lp 2 --crf "$crf" --preset "$speed" --film-grain "$grain""
 					;;
 				"rav1e")
 					str="--tiles 8 --threads 2 --no-scene-detection --keyint 0 -s "$speed" --quantizer "$crf" --photon-noise "$grain""
@@ -397,10 +397,10 @@ param_select () {
 		"HDR10")
 			case $encoder in
 				"aomenc")
-					str="--good --bit-depth=10 --end-usage=q --threads=2 --tune=ssim --ssim-rd-mult=125 --tune-content=psy --arnr-maxframes=15 --arnr-strength=2 --enable-cdef=0 --loopfilter-control=3 --quant-sharpness=3 --deltaq-mode=6 --aq-mode=0 --enable-keyframe-filtering=1 --luma-bias=36 --luma-bias-strength=16 --luma-bias-midpoint=60 --enable-qm=1 --quant-b-adapt=1 --lag-in-frames=48 --sb-size=dynamic --disable-kf --kf-max-dist=9999 --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0 --color-primaries=bt2020 --transfer-characteristics=smpte2084 --matrix-coefficients=bt2020ncl"
+					str="--good --bit-depth=10 --end-usage=q --threads=2 --dist-metric=qm-psnr --tune-content=psy101 --arnr-strength=2 --sharpness=2 --auto-tiling=4 --enable-keyframe-filtering=1 --lag-in-frames=48 --disable-kf --kf-max-dist=9999 --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0 --color-primaries=bt2020 --transfer-characteristics=smpte2084 --matrix-coefficients=bt2020ncl"
 					;;
 				"SVT-AV1")
-					str="--tune 3 --sharpness 2 --keyint -1 --lp 2 --irefresh-type 2 --crf "$crf" --preset "$speed" --film-grain "$grain" --color-primaries 9 --transfer-characteristics 16 --matrix-coefficients 9"
+					str="--tune 3 --keyint -1 --lp 2 --crf "$crf" --preset "$speed" --film-grain "$grain" --color-primaries 9 --transfer-characteristics 16 --matrix-coefficients 9"
 					;;
 				"rav1e")
 					str="--tiles 8 --threads 2 --no-scene-detection --keyint 0 -s "$speed" --quantizer "$crf" --photon-noise "$grain" --primaries BT2020 --transfer SMPTE2084 --matrix BT2020NCL"
@@ -410,10 +410,10 @@ param_select () {
 		"Animation")
 			case $encoder in
 				"aomenc")
-					str="--good --bit-depth=10 --end-usage=q --threads=2 --tune=ssim --tune-content=psy --arnr-maxframes=15 --arnr-strength=2 --enable-cdef=0 --loopfilter-control=1 --quant-sharpness=0 --deltaq-mode=1 --enable-chroma-deltaq=1 --aq-mode=0 --enable-keyframe-filtering=1 --luma-bias=0 --enable-qm=1 --lag-in-frames=48 --sb-size=dynamic --disable-kf --kf-max-dist=9999 --dist-metric=qm-psnr --quant-b-adapt=1 --qm-min=0 --qm-max=8 --min-q=1 --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0"
+					str="--good --bit-depth=10 --end-usage=q --threads=2 ---tune-content=psy --arnr-strength=2 --enable-keyframe-filtering=1 --lag-in-frames=48 --disable-kf --kf-max-dist=9999 --dist-metric=qm-psnr --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0"
 					;;
 				"SVT-AV1")
-					str="--tune 2 --keyint -1 --lp 2 --irefresh-type 2 --crf "$crf" --preset "$speed" --film-grain "$grain""
+					str="--tune 2 --keyint -1 --lp 2 --crf "$crf" --preset "$speed" --film-grain "$grain""
 					;;
 			esac
 			;;

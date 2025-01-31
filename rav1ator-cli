@@ -410,7 +410,7 @@ param_select () {
 		"Animation")
 			case $encoder in
 				"aomenc")
-					str="--good --bit-depth=10 --end-usage=q --threads=2 ---tune-content=psy --arnr-strength=2 --enable-keyframe-filtering=1 --lag-in-frames=48 --disable-kf --kf-max-dist=9999 --dist-metric=qm-psnr --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0"
+					str="--good --bit-depth=10 --end-usage=q --threads=2 --tune-content=psy --arnr-strength=2 --enable-keyframe-filtering=1 --lag-in-frames=48 --disable-kf --kf-max-dist=9999 --dist-metric=qm-psnr --cpu-used=$speed --cq-level=$crf --denoise-noise-level=$grain --enable-dnl-denoising=0"
 					;;
 				"SVT-AV1")
 					str="--tune 2 --keyint -1 --lp 2 --crf "$crf" --preset "$speed" --film-grain "$grain""

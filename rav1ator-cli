@@ -30,8 +30,8 @@ legal_link="https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/bin/leg
 
 # Every time there's a significant user-facing update, this will change & is checked against rav1ator-cli.md5 (which is pulled from the git repo). to generate rav1ator-cli.md5, just `rm rav1ator-cli.md5 && md5sum rav1ator-cli | awk '{print $1}' >> rav1ator-cli.md5`.
 script_md5=$(md5sum /usr/local/bin/rav1ator-cli | awk '{print $1}')
-version="0.3.1"
-bin_latest_date="21 January 2025"
+version="0.4.0"
+bin_latest_date="30 January 2025"
 
 # Check where the script is located
 bin_loc=$(which rav1ator-cli)
@@ -167,7 +167,7 @@ exit 1
 				echo -e "${GREY}Bad binary integrity detected:${RESET} x264"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
-			elif [ "$svt_sum" != "5e041a60d6c512831830f66469edb2d85cb09bf3538ffa096aefd94ae756ce32" ]; then
+			elif [ "$svt_sum" != "5454a9c9ced7badf96739a405830030cfd069ebd260fc44f0885fee9d5d3fe35" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} SvtAv1EncApp"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1

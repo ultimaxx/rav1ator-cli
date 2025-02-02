@@ -55,7 +55,7 @@ After it is properly installed, it will update itself in the future when updates
 Dependencies can be installed on Arch by running the following command:
 
 ```bash
-yay -Syu openssl ffmpeg python mkvtoolnix-cli vapoursynth gum l-smash vapoursynth-plugin-lsmashsource av1an ffms2
+yay -Syu openssl ffmpeg python mkvtoolnix-cli vapoursynth gum vapoursynth-plugin-bestsource-git av1an ffms2
 ```
 
 ## Pre-compiled Binary Disclaimer

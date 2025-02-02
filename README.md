@@ -12,7 +12,7 @@ Usage:
 	rav1ator-cli [input] [output] [--offline]
 
 Dependencies (Arch):
-	zstd tar ffmpeg python mkvtoolnix-cli vapoursynth gum numactl l-smash vapoursynth-plugin-lsmashsource av1an ffms2
+	zstd tar ffmpeg python mkvtoolnix-cli vapoursynth gum numactl av1an ffms2 vapoursynth-plugin-bestsource-git
 
 Options: (Currently, only one option is useful at a time)
 	-h, --help			Print this help section

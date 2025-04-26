@@ -167,7 +167,7 @@ exit 1
 				echo -e "${GREY}Bad binary integrity detected:${RESET} x264"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1
-			elif [ "$svt_sum" != "edca046956d21e1742705d176bf9e4d7b56f6fdfc690698cfb6c8f757dff1287" ]; then
+			elif [ "$svt_sum" != "78e33c4e06e65251b9ca6f7001d9c75369339dd7d77dfe3f247dc92851acbac5" ]; then
 				echo -e "${GREY}Bad binary integrity detected:${RESET} SvtAv1EncApp"
 				echo -e "${GREY}Please contact ultimaxx on GitHub.${RESET}"
 				exit 1

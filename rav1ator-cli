@@ -62,8 +62,32 @@ encoders_install () {
 	echo "$str"
 }
 
-# If the user passes a help flag
+flag_help=0
+flag_last_used=0
+flag_full_history=0
+flag_binaries=0
+flag_version=0
+flag_offline=0
+flag_batch=0
+
 if [[ "$*" == "-h" || "$*" == "--help" ]]; then
+	flag_help=1
+elif [[ "$*" == "-l" || "$*" == "--last-used" ]]; then
+	flag_last_used=1
+elif [[ "$*" == "-f" || "$*" == "--full-history" ]]; then
+	flag_full_history=1
+elif [[ "$*" == "-b" || "$*" == "--binaries" ]]; then
+	flag_binaries=1
+elif [[ "$*" == "-v" || "$*" == "--version" ]]; then
+	flag_version=1
+elif [[ "$3" == "-x" || "$3" == "--offline" ]]; then
+	flag_offline=1
+elif [[ "$1" == "-a" || "$1" == "--batch" ]]; then
+	flag_batch=1
+fi
+
+# If the user passes a help flag
+if [[ $flag_help -ne 0 ]]; then
 	echo -e "${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET} ${GREY}v$version${RESET}"
 	echo -e ""
 	echo -e "${GREY}Usage${RESET}:"
@@ -81,22 +105,25 @@ if [[ "$*" == "-h" || "$*" == "--help" ]]; then
 	echo -e "	-x, --offline		Don't check for updates."
 	echo -e "	-a, --batch		Batch encode. All video files in a directory specified after this flag are encoded."
 	exit 1
+fi
 
 # If the user passes a last used flag, print last used in history
-elif [[ "$*" == "-l" || "$*" == "--last-used" ]]; then
+if [[ $flag_last_used -ne 0 ]]; then
 	lastused1=$(tail -n 2 ~/.rav1ator-cli-history | head -n 1)
 	lastused2=$(tail -n 2 ~/.rav1ator-cli-history | tail -n 1)
 	echo -e "${GREY}$lastused1${RESET}"
 	echo -e "$lastused2"
 	exit 1
+fi
 
 # If the user passes a full history flag, print the full history
-elif [[ "$*" == "-f" || "$*" == "--full-history" ]]; then
+if [[ $flag_full_history -ne 0 ]]; then
 	cat ~/.rav1ator-cli-history
 	exit 1
+fi
 
 # If the user passes a binary installation flag, prompt to install binaries
-elif [[ "$*" == "-b" || "$*" == "--binaries" ]]; then
+if [[ $flag_binaries -ne 0 ]]; then
 	# Check for updates when -b flag is passed
 	updateCheck=$(update_hash_check)
 	if [[ "$updateCheck" == "" ]]; then
@@ -220,17 +247,20 @@ elif [[ "$*" == "-b" || "$*" == "--binaries" ]]; then
 			exit 1
 			;;
 	esac
+fi
 
 # If offline, set the script's MD5 hash to "DEBUG" to bypass update check
-elif [[ "$*" == "-v" || "$*" == "--version" ]]; then
+if [[ $flag_version -ne 0 ]]; then
 	echo -e "${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}	v$version"
 	echo -e "${GREY}Script MD5 Hash:${RESET}	$script_md5" # REMEMBER: this is your /usr/local/bin rvcli, NOT the script you're working on
 	echo -e "${GREY}Binaries updated:${RESET}	$bin_latest_date"
 	echo -e "${GREY}Made with${RESET} ${AV1RED}${BLINK}<3${RESET} ${GREY}by:${RESET}	Gianni Rosato"
 	exit 1
-elif [[ "$3" == "-x" || "$3" == "--offline" ]]; then
+fi
+if [[ $flag_offline -ne 0 ]]; then
 	script_md5="DEBUG"
-elif [[ "$1" == "-a" || "$1" == "--batch" ]]; then
+fi
+if [[ flag_batch -ne 0 ]]; then
 	if [ -z "$2" ]; then
 		echo -e "${GREY}No directory string provided.${RESET}"
 		exit 1

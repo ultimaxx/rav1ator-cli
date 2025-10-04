@@ -321,7 +321,7 @@ if [[ "$flag_batch" != "0" ]]; then
 fi
 
 # If the user has different args or no args, print generic output
-if [[ $# != 2 && $3 != "-x" && $3 != "--offline" ]]; then
+if [[ $# != 2 && "$flag_batch" == "0" ]]; then
 	echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}	      ${GREY}v$version${RESET}"
 	echo -e "	${GREY}Usage:${RESET} rav1ator-cli [${AV1RED}input${RESET}] [${AV1RED}output${RESET}]"
 	echo -e "	${GREY}rav1ator-cli${RESET} -h ${GREY}/${RESET} --help ${GREY}to get help${RESET}"

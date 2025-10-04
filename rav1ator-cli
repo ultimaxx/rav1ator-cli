@@ -46,8 +46,8 @@ update_hash_check () {
 }
 
 update_prompt() {
-    str=$(gum confirm "Install update now?" --selected.background="161" --selected.foreground="15" --unselected.foreground="248" && echo "Yes" || echo "No")
-    echo "$str"
+	str=$(gum confirm "Install update now?" --selected.background="161" --selected.foreground="15" --unselected.foreground="248" && echo "Yes" || echo "No")
+	echo "$str"
 }
 
 # Binary installation prompt if the user passes -b
@@ -62,11 +62,90 @@ encoders_install () {
 	echo "$str"
 }
 
+flag_help=0
+flag_last_used=0
+flag_full_history=0
+flag_binaries=0
+flag_version=0
+flag_offline=0
+flag_batch=0
+
+getopt --test > /dev/null && true
+if [[ $? -ne 4 ]]; then
+    echo 'I’m sorry, `getopt --test` failed in this environment.'
+    exit 1
+fi
+
+LONGOPTS=help,last-used,full-history,binaries,version,offline,batch:
+OPTIONS=h,l,f,b,v,x,a:
+
+echo -e "${GREY}"
+PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@") || exit 2
+eval set -- "$PARSED"
+echo -e "${RESET}"
+
+while true; do
+	case "$1" in
+		-h|--help)
+			flag_help=0
+			flag_last_used=0
+			flag_full_history=0
+			flag_version=0
+			flag_help=1
+			shift
+			;;
+		-l|--last-used)
+			flag_help=0
+			flag_last_used=0
+			flag_full_history=0
+			flag_version=0
+			flag_last_used=1
+			shift
+			;;
+		-f|--full-history)
+			flag_help=0
+			flag_last_used=0
+			flag_full_history=0
+			flag_version=0
+			flag_full_history=1
+			shift
+			;;
+		-b|--binaries)
+			flag_binaries=1
+			shift
+			;;
+		-v|--version)
+			flag_help=0
+			flag_last_used=0
+			flag_full_history=0
+			flag_version=0
+			flag_version=1
+			shift
+			;;
+		-x|--offline)
+			flag_offline=1
+			shift
+			;;
+		-a|--batch)
+			flag_batch="$2"
+			shift 2
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			echo -e "${GREY}Unexpected Error${RESET}"
+			exit 3
+			;;
+	esac
+done
+
 # If the user passes a help flag
-if [[ "$*" == "-h" || "$*" == "--help" ]]; then
+if [[ $flag_help -ne 0 ]]; then
 	echo -e "${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET} ${GREY}v$version${RESET}"
 	echo -e ""
-    echo -e "${GREY}Usage${RESET}:"
+	echo -e "${GREY}Usage${RESET}:"
 	echo -e "	rav1ator-cli [${AV1RED}input${RESET}] [${AV1RED}output${RESET}] [${GREY}--offline${RESET}]"
 	echo -e ""
 	echo -e "${GREY}Dependencies (Arch)${RESET}: "
@@ -81,58 +160,61 @@ if [[ "$*" == "-h" || "$*" == "--help" ]]; then
 	echo -e "	-x, --offline		Don't check for updates."
 	echo -e "	-a, --batch		Batch encode. All video files in a directory specified after this flag are encoded."
 	exit 1
+fi
 
 # If the user passes a last used flag, print last used in history
-elif [[ "$*" == "-l" || "$*" == "--last-used" ]]; then
+if [[ $flag_last_used -ne 0 ]]; then
 	lastused1=$(tail -n 2 ~/.rav1ator-cli-history | head -n 1)
 	lastused2=$(tail -n 2 ~/.rav1ator-cli-history | tail -n 1)
 	echo -e "${GREY}$lastused1${RESET}"
 	echo -e "$lastused2"
 	exit 1
+fi
 
 # If the user passes a full history flag, print the full history
-elif [[ "$*" == "-f" || "$*" == "--full-history" ]]; then
+if [[ $flag_full_history -ne 0 ]]; then
 	cat ~/.rav1ator-cli-history
 	exit 1
+fi
 
 # If the user passes a binary installation flag, prompt to install binaries
-elif [[ "$*" == "-b" || "$*" == "--binaries" ]]; then
+if [[ $flag_binaries -ne 0 ]]; then
 	# Check for updates when -b flag is passed
 	updateCheck=$(update_hash_check)
 	if [[ "$updateCheck" == "" ]]; then
-	    # If we can't fetch the script's hash from GitHub, inform the user and abort
-	    echo -e "${BOLD}${GREY}Error${RESET}${GREY}: Could not fetch script hash.${RESET}"
+		# If we can't fetch the script's hash from GitHub, inform the user and abort
+		echo -e "${BOLD}${GREY}Error${RESET}${GREY}: Could not fetch script hash.${RESET}"
 		echo -e "${GREY}An internet connection is required for binary installation.${RESET}"
-    exit 1
+		exit 1
 	elif [[ "$script_md5" != "$updateCheck" ]]; then
-	    echo -n -e "${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}"
-        echo -e "\nThere is a ${BOLD}New Update${RESET} available!"
-        echo -e "${GREY}We've downloaded it for you. Would you like to install to /usr/local/bin?${RESET}"
-        # Download latest script from GitHub if we need to update
-    	curl -sOJ https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/rav1ator-cli
-    	chmod +x rav1ator-cli
-    	# echo -e "sudo cp rav1ator-cli /usr/local/bin" # Installation instruction
-    	confirmation=$(update_prompt)
-    	if [[ "$confirmation" == "Yes" ]]; then
-            echo -e "${GREY}>${RESET} ${AV1RED}Yes${RESET}"
-            sudo cp rav1ator-cli /usr/local/bin
-            rm -f rav1ator-cli
-            echo -e "If you accepted the sudo prompt, the latest version should now be installed!"
-            exit 1
-        else
-            echo -e "${GREY}>${RESET} ${AV1RED}No${RESET}"
-            echo -e "${GREY}The latest version of rAV1ator CLI has been downloaded to the current directory.${RESET}"
-            echo -e "${GREY}You can install it manually by running:${RESET} sudo cp rav1ator-cli /usr/local/bin"
-            exit 1
-        fi
-exit 1
+		echo -n -e "${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}"
+		echo -e "\nThere is a ${BOLD}New Update${RESET} available!"
+		echo -e "${GREY}We've downloaded it for you. Would you like to install to /usr/local/bin?${RESET}"
+		# Download latest script from GitHub if we need to update
+		curl -sOJ https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/rav1ator-cli
+		chmod +x rav1ator-cli
+		# echo -e "sudo cp rav1ator-cli /usr/local/bin" # Installation instruction
+		confirmation=$(update_prompt)
+		if [[ "$confirmation" == "Yes" ]]; then
+			echo -e "${GREY}>${RESET} ${AV1RED}Yes${RESET}"
+			sudo cp rav1ator-cli /usr/local/bin
+			rm -f rav1ator-cli
+			echo -e "If you accepted the sudo prompt, the latest version should now be installed!"
+			exit 1
+		else
+			echo -e "${GREY}>${RESET} ${AV1RED}No${RESET}"
+			echo -e "${GREY}The latest version of rAV1ator CLI has been downloaded to the current directory.${RESET}"
+			echo -e "${GREY}You can install it manually by running:${RESET} sudo cp rav1ator-cli /usr/local/bin"
+			exit 1
+		fi
+		exit 1
 	else
 		echo -e "Binaries last updated by rav1ator-cli on ${BOLD}$bin_latest_date${RESET}"
 	fi
 	manualInstall=$(encoders_download)
 	case $manualInstall in
 		"Yes")
-		    echo -e "${GREY}>${RESET} ${AV1RED}Yes${RESET}"
+			echo -e "${GREY}>${RESET} ${AV1RED}Yes${RESET}"
 			# Clean up old binary directory & make a new one
 			rm -rf ~/rav1ator_cli_encoders
 			mkdir ~/rav1ator_cli_encoders
@@ -214,51 +296,49 @@ exit 1
 			esac
 			;;
 		"No")
-		    echo -e "${GREY}>${RESET} ${AV1RED}No${RESET}"
+			echo -e "${GREY}>${RESET} ${AV1RED}No${RESET}"
 			# Notify that installation was aborted
 			echo -e "${GREY}Binary installation aborted.${RESET}"
 			exit 1
 			;;
 	esac
+fi
 
 # If offline, set the script's MD5 hash to "DEBUG" to bypass update check
-elif [[ "$*" == "-v" || "$*" == "--version" ]]; then
+if [[ $flag_version -ne 0 ]]; then
 	echo -e "${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}	v$version"
 	echo -e "${GREY}Script MD5 Hash:${RESET}	$script_md5" # REMEMBER: this is your /usr/local/bin rvcli, NOT the script you're working on
 	echo -e "${GREY}Binaries updated:${RESET}	$bin_latest_date"
 	echo -e "${GREY}Made with${RESET} ${AV1RED}${BLINK}<3${RESET} ${GREY}by:${RESET}	Gianni Rosato"
 	exit 1
-elif [[ "$3" == "-x" || "$3" == "--offline" ]]; then
+fi
+if [[ $flag_offline -ne 0 ]]; then
 	script_md5="DEBUG"
-elif [[ "$1" == "-a" || "$1" == "--batch" ]]; then
-	if [ -z "$2" ]; then
-		echo -e "${GREY}No directory string provided.${RESET}"
-		exit 1
-	fi
+fi
+if [[ "$flag_batch" != "0" ]]; then
 	is_batch_encode=1
-	batch_dir_dumb="$2"
-	batch_dir=$(echo "$batch_dir_dumb" | tr -d '/')
+	batch_dir=$(echo "$flag_batch" | tr -d '/')
 fi
 
 # If the user has different args or no args, print generic output
-if [[ $# != 2 && $3 != "-x" && $3 != "--offline" ]]; then
-    echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}	      ${GREY}v$version${RESET}"
-    echo -e "	${GREY}Usage:${RESET} rav1ator-cli [${AV1RED}input${RESET}] [${AV1RED}output${RESET}]"
+if [[ $# != 2 && "$flag_batch" == "0" ]]; then
+	echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}	      ${GREY}v$version${RESET}"
+	echo -e "	${GREY}Usage:${RESET} rav1ator-cli [${AV1RED}input${RESET}] [${AV1RED}output${RESET}]"
 	echo -e "	${GREY}rav1ator-cli${RESET} -h ${GREY}/${RESET} --help ${GREY}to get help${RESET}"
-    exit 1
+	exit 1
 fi
 
 # If no extension on the input file, notify user
 if [ -z "$EXTENSION" ]; then
-    echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}"
-    echo -e "	Please make sure you have a valid input file."
-    exit 1
+	echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}"
+	echo -e "	Please make sure you have a valid input file."
+	exit 1
 
 # If wrong extension on output file, notify user
 elif [[ "$EXTENSION2" != "mkv" && is_batch_encode -eq 0 ]]; then
-    echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}"
-    echo -e "	Please make sure your output filename has the ${BOLD}.mkv${RESET} file extension."
-    exit 1
+	echo -e "	${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}_${RESET}"
+	echo -e "	Please make sure your output filename has the ${BOLD}.mkv${RESET} file extension."
+	exit 1
 fi
 
 # Encoder Selection
@@ -568,8 +648,8 @@ worker_select () {
 }
 
 chunkmethod_text () {
-    str="The chunk method defines how Av1an splits up your video into smaller chunks for encoding. \nFFMS2 is faster and very reliable but can have issues with some sources. \nBestsource is slower but the most reliable. \nIf you're unsure, FFMS2 is recommended."
-    echo "$str"
+	str="The chunk method defines how Av1an splits up your video into smaller chunks for encoding. \nFFMS2 is faster and very reliable but can have issues with some sources. \nBestsource is slower but the most reliable. \nIf you're unsure, FFMS2 is recommended."
+	echo "$str"
 }
 
 # Chunk Method Selection
@@ -581,20 +661,20 @@ chunkmethod_select () {
 
 # Chunk Method Option Return
 chunkmethod_opt () {
-    local method
-    local selected_method
-    method=$(chunkmethod_select)
+	local method
+	local selected_method
+	method=$(chunkmethod_select)
 
-    case $method in
-        "FFMS2")
-	    selected_method="ffms2"
+	case $method in
+		"FFMS2")
+			selected_method="ffms2"
 			;;
-        "Bestsource")
-            selected_method="bestsource"
-            ;;
-    esac
+		"Bestsource")
+			selected_method="bestsource"
+			;;
+	esac
 
-    echo "$selected_method"
+	echo "$selected_method"
 }
 
 # Final prompt, asking user whether or not the want to start the encode, abort, start the encode with the resume option, or print the resulting script derived from their input
@@ -643,29 +723,29 @@ while [[ $done -eq 0 ]] ; do
 	if [[ "$script_md5" == "DEBUG" ]]; then
 		echo -e " ${GREY}Running in offline mode, skipping update checks.${RESET}\n"
 	elif [[ "$updateCheck" == "" ]]; then
-	    # If we can't fetch the script's hash from GitHub, inform the user and abort
-	    echo -e "\n${BOLD}${GREY}Error${RESET}${GREY}: Could not fetch script hash.${RESET}"
+		# If we can't fetch the script's hash from GitHub, inform the user and abort
+		echo -e "\n${BOLD}${GREY}Error${RESET}${GREY}: Could not fetch script hash.${RESET}"
 		echo -e "${GREY}Please check your internet connection or run rAV1ator CLI in offline mode.${RESET}"
-        exit 1
+		exit 1
 	elif [[ "$script_md5" != "$updateCheck" ]]; then
-        echo -e "\nThere is a ${BOLD}New Update${RESET} available!"
-        echo -e "${GREY}We've downloaded it for you. Would you like to install to /usr/local/bin?${RESET}"
-        # Download latest script from GitHub if we need to update
-    	curl -sOJ https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/rav1ator-cli
-    	chmod +x rav1ator-cli
-    	confirmation=$(update_prompt)
-    	if [[ "$confirmation" == "Yes" ]]; then
-            echo -e "${GREY}>${RESET} ${AV1RED}Yes${RESET}"
-            sudo cp rav1ator-cli /usr/local/bin
-            rm -f rav1ator-cli
-            echo -e "If you accepted the sudo prompt, ${GREY}v$version${RESET} should be installed!"
-            exit 1
-        else
-            echo -e "${GREY}>${RESET} ${AV1RED}No${RESET}"
-            echo -e "${GREY}The latest version of rAV1ator CLI has been downloaded to the current directory.${RESET}"
-            echo -e "${GREY}You can install it manually by running:${RESET} sudo cp rav1ator-cli /usr/local/bin"
-            exit 1
-        fi
+		echo -e "\nThere is a ${BOLD}New Update${RESET} available!"
+		echo -e "${GREY}We've downloaded it for you. Would you like to install to /usr/local/bin?${RESET}"
+		# Download latest script from GitHub if we need to update
+		curl -sOJ https://raw.githubusercontent.com/ultimaxx/rav1ator-cli/main/rav1ator-cli
+		chmod +x rav1ator-cli
+		confirmation=$(update_prompt)
+		if [[ "$confirmation" == "Yes" ]]; then
+			echo -e "${GREY}>${RESET} ${AV1RED}Yes${RESET}"
+			sudo cp rav1ator-cli /usr/local/bin
+			rm -f rav1ator-cli
+			echo -e "If you accepted the sudo prompt, ${GREY}v$version${RESET} should be installed!"
+			exit 1
+		else
+			echo -e "${GREY}>${RESET} ${AV1RED}No${RESET}"
+			echo -e "${GREY}The latest version of rAV1ator CLI has been downloaded to the current directory.${RESET}"
+			echo -e "${GREY}You can install it manually by running:${RESET} sudo cp rav1ator-cli /usr/local/bin"
+			exit 1
+		fi
 	else
 		echo -e "\n"
 	fi
@@ -697,19 +777,19 @@ while [[ $done -eq 0 ]] ; do
 			encoder_av1an="rav1e"
 			;;
 	esac
-    	echo -e "${GREY}>${RESET} ${AV1RED}$encoder${RESET}\n"
+	echo -e "${GREY}>${RESET} ${AV1RED}$encoder${RESET}\n"
 
 		# Speed the user set gets assigned to "speed" variable
-    	speed_string=$(cpu_used_select_text)
-    	echo -e "$speed_string"
-    	speed=$(cpu_used_select)
-    	echo -e "${GREY}>${RESET} ${AV1RED}$speed${RESET}\n"
+		speed_string=$(cpu_used_select_text)
+		echo -e "$speed_string"
+		speed=$(cpu_used_select)
+		echo -e "${GREY}>${RESET} ${AV1RED}$speed${RESET}\n"
 
 		# CRF input valuee is assigned to "crf" variable
-    	crf_string=$(crf_used_select_text)
-    	echo -e "$crf_string"
-    	crf=$(crf_used_select)
-    	echo -e "${GREY}>${RESET} ${AV1RED}$crf${RESET}\n"
+		crf_string=$(crf_used_select_text)
+		echo -e "$crf_string"
+		crf=$(crf_used_select)
+		echo -e "${GREY}>${RESET} ${AV1RED}$crf${RESET}\n"
 
 		# Unless we're encoding AV1, don't ask about grain
 		if [[ "$encoder" != "x264" && "$encoder" != "x265" ]]; then
@@ -723,19 +803,19 @@ while [[ $done -eq 0 ]] ; do
 				grain=0
 				echo -e "${GREY}No synthetic grain will be added.${RESET}\n"
 			fi
-    	fi
+		fi
 
 		# Asking for encoding parameters
-    	paramtext=$(param_text)
-    	echo -e "$paramtext"
-    	params="$(param_select)"
-    	echo -e "${GREY}>${RESET} ${AV1RED}\"$params\"${RESET}\n"
+		paramtext=$(param_text)
+		echo -e "$paramtext"
+		params="$(param_select)"
+		echo -e "${GREY}>${RESET} ${AV1RED}\"$params\"${RESET}\n"
 
 		# Asking for FFmpeg parameters
-    	ffmpegtext=$(ffmpeg_text)
-    	echo -e "$ffmpegtext"
-    	ffmpegopts="$(ffmpeg_select)"
-    	echo -e "${GREY}>${RESET} ${AV1RED}\"$ffmpegopts\"${RESET}\n"
+		ffmpegtext=$(ffmpeg_text)
+		echo -e "$ffmpegtext"
+		ffmpegopts="$(ffmpeg_select)"
+		echo -e "${GREY}>${RESET} ${AV1RED}\"$ffmpegopts\"${RESET}\n"
 
 		# Set resolution for scene detection based on user input for FFmpeg string.
 		if [[ "$ffmpegopts" == "-vf scale=1280:720:flags=bicubic:param0=0:param1=1/2 -an" ]]; then
@@ -745,38 +825,38 @@ while [[ $done -eq 0 ]] ; do
 		fi
 
 		# Asking for audio parameters
-    	audiotext=$(audio_text)
-    	echo -e "$audiotext"
-    	audioopts="$(audio_opts)"
-    	echo -e "${GREY}>${RESET} ${AV1RED}\"$audioopts\"${RESET}\n"
+		audiotext=$(audio_text)
+		echo -e "$audiotext"
+		audioopts="$(audio_opts)"
+		echo -e "${GREY}>${RESET} ${AV1RED}\"$audioopts\"${RESET}\n"
 
 		# Asking for Av1an workers
-    	worker_string=$(worker_text)
-    	echo -e "$worker_string"
-    	workers=$(worker_select)
-    	echo -e "${GREY}>${RESET} ${AV1RED}$workers${RESET}\n"
+		worker_string=$(worker_text)
+		echo -e "$worker_string"
+		workers=$(worker_select)
+		echo -e "${GREY}>${RESET} ${AV1RED}$workers${RESET}\n"
 
-        # Asking for Av1an chunk method
-        chunk_text=$(chunkmethod_text)
-        echo -e "$chunk_text"
-        chunk_string=$(chunkmethod_opt) 
-        echo -e "${GREY}>${RESET} ${AV1RED}$chunk_string${RESET}\n"
+	# Asking for Av1an chunk method
+	chunk_text=$(chunkmethod_text)
+	echo -e "$chunk_text"
+	chunk_string=$(chunkmethod_opt) 
+	echo -e "${GREY}>${RESET} ${AV1RED}$chunk_string${RESET}\n"
 
 		# Finally, asking if the user is ready to encoder
-    	echo -e "${BOLD}Ready to encode?${RESET}"
-    	encode_start=$(encode_start_select)
+		echo -e "${BOLD}Ready to encode?${RESET}"
+		encode_start=$(encode_start_select)
 		echo -e "${GREY}>${RESET} ${AV1RED}$encode_start${RESET}\n"
 
-    	case $encode_start in
-    		"Start")
+		case $encode_start in
+			"Start")
 				# Spin the spinner to pretend something is happening
 				gum spin sleep 1.3 --spinner.foreground="161" --spinner line --show-output --title "Generating script..."
 
 				# Spin the spinner to show that we're generating a hash for the input file which will be used to make a temp dir & name the output script
-    			RAND=$(gum spin md5sum $INFILE --spinner.foreground="161" --spinner line --show-output --title "Hashing input file..." | head -c 6)
+				RAND=$(gum spin md5sum $INFILE --spinner.foreground="161" --spinner line --show-output --title "Hashing input file..." | head -c 6)
 
 				# Echo the generated script and goodbye message to a .sh file
-    			echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
+				echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
 				echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
 
 				# Handle history output to `.rav1ator-cli-history` text file
@@ -788,12 +868,12 @@ while [[ $done -eq 0 ]] ; do
 				chmod +x "rAV1ator-CLI_job${RAND}.sh"
 
 				# Spin the spinner again for dramatic effect
-    			gum spin --spinner.foreground="161" --spinner line --title "Executing rAV1ator-CLI_job${RAND}.sh..." -- sleep 0.3
+				gum spin --spinner.foreground="161" --spinner line --title "Executing rAV1ator-CLI_job${RAND}.sh..." -- sleep 0.3
 
 				# Execute generated Av1an script to begin encoding
-    			./"rAV1ator-CLI_job${RAND}.sh"
+				./"rAV1ator-CLI_job${RAND}.sh"
 
-    			rm "rAV1ator-CLI_job${RAND}.sh"
+				rm "rAV1ator-CLI_job${RAND}.sh"
 				;;
 			"Start Batch")
 				# Spin the spinner to pretend something is happening
@@ -807,7 +887,7 @@ while [[ $done -eq 0 ]] ; do
 
 				# Echo the generated batch encoding script & goodbye message to a .sh file
 				echo -e "ulimit -n 200000" > "rAV1ator-CLI_job${RAND}.sh"
-    			echo -e "find "$batch_dir" \( -name "\*.mkv" -o -name "\*.y4m" -o -name "\*.mp4" -o -name "\*.flv" -o -name "\*.webm" -o -name "\*.ivf" -o -name "\*.flv" -o -name "\*.yuv" \) -execdir av1an -i {} --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o rAV1ator-CLI_job${RAND}/{}-encoded.mkv \;" >> "rAV1ator-CLI_job${RAND}.sh"
+				echo -e "find "$batch_dir" \( -name "\*.mkv" -o -name "\*.y4m" -o -name "\*.mp4" -o -name "\*.flv" -o -name "\*.webm" -o -name "\*.ivf" -o -name "\*.flv" -o -name "\*.yuv" \) -execdir av1an -i {} --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o rAV1ator-CLI_job${RAND}/{}-encoded.mkv \;" >> "rAV1ator-CLI_job${RAND}.sh"
 				echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
 
 				# Handle history output to `.rav1ator-cli-history` text file
@@ -819,28 +899,28 @@ while [[ $done -eq 0 ]] ; do
 				chmod +x "rAV1ator-CLI_job${RAND}.sh"
 
 				# Spin the spinner again for dramatic effect
-    			gum spin --spinner.foreground="161" --spinner line --title "Executing rAV1ator-CLI_job${RAND}.sh..." -- sleep 0.3
+				gum spin --spinner.foreground="161" --spinner line --title "Executing rAV1ator-CLI_job${RAND}.sh..." -- sleep 0.3
 
 				# Execute generated Av1an script to begin encoding
-    			./"rAV1ator-CLI_job${RAND}.sh"
+				./"rAV1ator-CLI_job${RAND}.sh"
 
 				# Once it is done or the user cancels, remove the generated script
-    			rm "rAV1ator-CLI_job${RAND}.sh"
+				rm "rAV1ator-CLI_job${RAND}.sh"
 				;;
-    		"Abort")
+			"Abort")
 				# Inform the user they've aborted. Sad :(
-    			echo -e "${GREY}Encoding aborted.${RESET}"
-    			;;
-    		"Resume")
+				echo -e "${GREY}Encoding aborted.${RESET}"
+				;;
+			"Resume")
 				# Spin the spinner to pretend something is happening
 				gum spin sleep 1.3 --spinner.foreground="161" --spinner line --show-output --title "Generating script..."
 
 				# Spin the spinner to show that we're generating a hash for the input file which will be used to make a temp dir & name the output script
-    			RAND=$(gum spin md5sum $INFILE --spinner.foreground="161" --spinner line --show-output --title "Hashing input file..." | head -c 6)
+				RAND=$(gum spin md5sum $INFILE --spinner.foreground="161" --spinner line --show-output --title "Hashing input file..." | head -c 6)
 
 				# The only difference between "Yes" and "Resume" is that this one has a resume flag. I don't think this should be the default
-    			echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --resume --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
-    			echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
+				echo -e "ulimit -n 200000 && av1an -i \"$INFILE\" --verbose --sc-pix-format=yuv420p --resume --temp \"rAV1ator-CLI_temp${RAND}\" --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"$OUTFILE\"" > "rAV1ator-CLI_job${RAND}.sh"
+				echo -e "echo -e \"${BOLD}Encoding Finished!${RESET} Thanks for checking out ${BOLD}rAV1ator${RESET}${GREY}:${RESET} ${AV1RED}${BOLD}CLI${RESET} ${BOLD}Edition${RESET}${GREY}${BLINK}${BOLD}!${RESET}\"" >> "rAV1ator-CLI_job${RAND}.sh"
 
 				# Handle history output to `.rav1ator-cli-history` text file
 				echo "-------" >> ~/.rav1ator-cli-history
@@ -857,7 +937,7 @@ while [[ $done -eq 0 ]] ; do
 				./"rAV1ator-CLI_job${RAND}.sh"
 
 				# Once it is done or the user cancels, remove the generated script
-    			rm "rAV1ator-CLI_job${RAND}.sh"
+				rm "rAV1ator-CLI_job${RAND}.sh"
 				;;
 			"Print")
 				# Spin the spinner to pretend something is happening
@@ -879,7 +959,7 @@ while [[ $done -eq 0 ]] ; do
 				gum spin sleep 1.5 --spinner.foreground="161" --spinner line --show-output --title "Generating generic script..."
 
 				# Print the non-batch Av1an command to the terminal
-    			echo -e "${GREY}Generated script${RESET}${AV1RED}:${RESET} av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"genericOutput.mkv\""
+				echo -e "${GREY}Generated script${RESET}${AV1RED}:${RESET} av1an -i \"genericInput.mkv\" --verbose --sc-pix-format=yuv420p --split-method av-scenechange -m $chunk_string -c mkvmerge --sc-downscale-height $sc_downscale_res -e "$encoder_av1an" --force -v \"$params\" --pix-format yuv420p10le -f \"$ffmpegopts\" -a \"$audioopts\" --set-thread-affinity 2 -w $workers -o \"genericOutput.mkv\""
 
 				# Handle history output to `.rav1ator-cli-history` text file
 				echo "-------" >> ~/.rav1ator-cli-history
@@ -889,7 +969,7 @@ while [[ $done -eq 0 ]] ; do
 				# Inform the user that the printed output is also in their history
 				echo -e "${GREY}Printed script added to history. Please note this is a generic single-file script based on your specified settings that will not work on a folder/directory of videos.${RESET}"
 				;;
-    	esac
+		esac
 
 # Set done equal to 1 so that we can exit the while loop
 done=1
